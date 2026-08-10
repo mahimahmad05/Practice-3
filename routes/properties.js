@@ -75,7 +75,7 @@ router.patch('/:id/edit', requireAuth, async (req, res) => {
     const isOwner = property.ownerId && property.ownerId.toString() === req.user.id;
     if (!isOwner) return res.status(403).json({ error: 'Shudhu tumi nijer listing-i edit korte parbe' });
 
-    const { name, rent, facilities, details, photo, video, whatsapp, nidNumber, nidPhoto } = req.body;
+    const { name, rent, facilities, details, photo, video, whatsapp, nidNumber, nidPhoto, moveInDate, leaseDuration } = req.body;
     if (name !== undefined) property.name = name;
     if (rent !== undefined) property.rent = rent;
     if (facilities !== undefined) property.facilities = facilities;
@@ -85,6 +85,8 @@ router.patch('/:id/edit', requireAuth, async (req, res) => {
     if (whatsapp !== undefined) property.whatsapp = whatsapp;
     if (nidNumber !== undefined) property.nidNumber = nidNumber;
     if (nidPhoto !== undefined) property.nidPhoto = nidPhoto;
+    if (moveInDate !== undefined) property.moveInDate = moveInDate;
+    if (leaseDuration !== undefined) property.leaseDuration = leaseDuration;
     property.verified = false; // content change hoyeche, admin-ke abar review korte hobe
 
     await property.save();

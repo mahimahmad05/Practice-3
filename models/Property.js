@@ -16,7 +16,9 @@ const propertySchema = new mongoose.Schema({
   whatsapp: { type: String, default: null },
   nidNumber: { type: String, default: null },     // owner-r NID number, verification-er jonno
   nidPhoto: { type: String, default: null },       // NID card-er photo, admin review korbe
-  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null } // logged-in owner-er sathe link
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, // logged-in owner-er sathe link
+  moveInDate: { type: Date, default: null },       // kobe theke thaka jabe
+  leaseDuration: { type: String, default: null }    // e.g. "6 months", "1 year", "Negotiable"
 }, { timestamps: true }); // createdAt / updatedAt auto add hobe
 
 module.exports = mongoose.model('Property', propertySchema);

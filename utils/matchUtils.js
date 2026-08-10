@@ -1,23 +1,33 @@
 // utils/matchUtils.js — matching engine-er jonno helper data ar function
 
-// Dhaka-r kichu area-r approximate lat/lng center (HTML demo theke neya)
+// DIU (Daffodil International University) campus-er ashe pashe-r area-r approximate lat/lng center
 const AREA_COORDS = {
-  Mirpur: { lat: 23.8223, lng: 90.3654 },
-  Dhanmondi: { lat: 23.7461, lng: 90.3742 },
-  Mohammadpur: { lat: 23.7657, lng: 90.3585 },
+  Dattapara: { lat: 23.8950, lng: 90.3600 },
+  Ashulia: { lat: 23.9000, lng: 90.3500 },
+  Birulia: { lat: 23.8830, lng: 90.3360 },
+  Panchbati: { lat: 23.8975, lng: 90.3550 },
   Uttara: { lat: 23.8759, lng: 90.3795 },
-  Bashundhara: { lat: 23.8103, lng: 90.4125 },
-  Savar: { lat: 23.8583, lng: 90.2667 }
+  "Model Town": { lat: 23.8700, lng: 90.3850 },
+  Khagan: { lat: 23.9050, lng: 90.3420 },
+  "Turag Fashion": { lat: 23.8850, lng: 90.3650 },
+  Chandona: { lat: 23.9150, lng: 90.3900 },
+  Kumkumari: { lat: 23.9100, lng: 90.3470 },
+  "Mirpur Kolma": { lat: 23.8350, lng: 90.3600 }
 };
 
 // Kon area-r kache kon area ache, eita locationScore calculate korte lagbe
 const NEARBY = {
-  Mirpur: ["Mohammadpur", "Uttara"],
-  Mohammadpur: ["Mirpur", "Dhanmondi"],
-  Dhanmondi: ["Mohammadpur", "Bashundhara"],
-  Uttara: ["Mirpur", "Bashundhara"],
-  Bashundhara: ["Uttara", "Dhanmondi"],
-  Savar: ["Mirpur"]
+  Dattapara: ["Ashulia", "Panchbati"],
+  Ashulia: ["Dattapara", "Khagan"],
+  Birulia: ["Panchbati", "Turag Fashion"],
+  Panchbati: ["Dattapara", "Birulia"],
+  Uttara: ["Model Town", "Turag Fashion"],
+  "Model Town": ["Uttara", "Mirpur Kolma"],
+  Khagan: ["Ashulia", "Kumkumari"],
+  "Turag Fashion": ["Birulia", "Uttara"],
+  Chandona: ["Khagan", "Kumkumari"],
+  Kumkumari: ["Khagan", "Chandona"],
+  "Mirpur Kolma": ["Model Town", "Uttara"]
 };
 
 // Duita lat/lng point-er majhe real distance (km) — Haversine formula

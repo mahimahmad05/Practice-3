@@ -2,14 +2,18 @@
 const express = require('express');
 const router = express.Router();
 const Property = require('../models/Property');
+const requireAuth = require('../middleware/auth');
+const requireAdmin = require('../middleware/requireAdmin');
 
-// GET /api/properties  → shob listing dekhabe (?type=Apartment diye filter kora jay)
+// GET /api/properties  → shob listing dekhabe (?type=Apartment ar ?verified=false diye filter kora jay)
 router.get('/', async (req, res) => {
   try {
     const filter = {};
     if (req.query.type && req.query.type !== 'All') {
       filter.type = req.query.type;
     }
+    if (req.query.verified === 'true') filter.verified = true;
+    if (req.query.verified === 'false') filter.verified = false;
     const properties = await Property.find(filter).sort({ createdAt: -1 });
     res.json(properties);
   } catch (err) {
@@ -36,6 +40,28 @@ router.post('/', async (req, res) => {
     res.status(201).json(saved);
   } catch (err) {
     res.status(400).json({ error: 'Listing save korte problem hoyeche: ' + err.message });
+  }
+});
+
+// PATCH /api/properties/:id/verify  → admin-i shudhu ekta listing "approve" (verified=true) korte parbe
+router.patch('/:id/verify', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const updated = await Property.findByIdAndUpdate(req.params.id, { verified: true }, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Property pawa jay nai' });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Approve korte problem hoyeche: ' + err.message });
+  }
+});
+
+// DELETE /api/properties/:id  → admin-i shudhu ekta listing delete korte parbe
+router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const deleted = await Property.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Property pawa jay nai' });
+    res.json({ message: 'Delete kora hoyeche' });
+  } catch (err) {
+    res.status(500).json({ error: 'Delete korte problem hoyeche: ' + err.message });
   }
 });
 

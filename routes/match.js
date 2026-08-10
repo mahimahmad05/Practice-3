@@ -15,7 +15,17 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'location, type, ar budget lagbe' });
     }
 
-    const properties = await Property.find({}); // shob listing DB theke ana
+    const allProperties = await Property.find({}); // shob listing DB theke ana
+
+    // Gender preference filter — jodi property-r details.gender thake (Male/Female)
+    // ar tenant specific gender chay, tahole mismatch hole shei property bad
+    const genderPref = req_body.gender; // "Male" | "Female" | "Any" | undefined
+    const properties = (!genderPref || genderPref === 'Any')
+      ? allProperties
+      : allProperties.filter((p) => {
+          const pGender = p.details && p.details.gender;
+          return !pGender || pGender === 'Any' || pGender === genderPref;
+        });
 
     const ranked = properties
       .map((p) => ({ property: p, score: scoreProperty(p, req_body) }))

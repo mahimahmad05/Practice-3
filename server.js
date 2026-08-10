@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
 app.use('/api/properties', require('./routes/properties'));
 app.use('/api/match', require('./routes/match'));
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/reviews', require('./routes/reviews'));
 
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);

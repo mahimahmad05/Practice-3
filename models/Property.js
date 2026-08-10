@@ -15,7 +15,8 @@ const propertySchema = new mongoose.Schema({
   video: { type: String, default: null },
   whatsapp: { type: String, default: null },
   nidNumber: { type: String, default: null },     // owner-r NID number, verification-er jonno
-  nidPhoto: { type: String, default: null }       // NID card-er photo, admin review korbe
+  nidPhoto: { type: String, default: null },       // NID card-er photo, admin review korbe
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null } // logged-in owner-er sathe link
 }, { timestamps: true }); // createdAt / updatedAt auto add hobe
 
 module.exports = mongoose.model('Property', propertySchema);

@@ -4,6 +4,7 @@ const router = express.Router();
 const Property = require('../models/Property');
 const requireAuth = require('../middleware/auth');
 const requireAdmin = require('../middleware/requireAdmin');
+const optionalAuth = require('../middleware/optionalAuth');
 
 // GET /api/properties  → shob listing dekhabe (?type=Apartment ar ?verified=false diye filter kora jay)
 router.get('/', async (req, res) => {
@@ -21,6 +22,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/properties/mine  → logged-in owner-er nijer shob listing (login lagbe)
+router.get('/mine', requireAuth, async (req, res) => {
+  try {
+    const properties = await Property.find({ ownerId: req.user.id }).sort({ createdAt: -1 });
+    res.json(properties);
+  } catch (err) {
+    res.status(500).json({ error: 'Listings load korte problem hoyeche' });
+  }
+});
+
 // GET /api/properties/:id  → ekta shudhu property-r details
 router.get('/:id', async (req, res) => {
   try {
@@ -32,10 +43,12 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/properties  → notun listing add kora (owner form theke)
-router.post('/', async (req, res) => {
+// POST /api/properties  → notun listing add kora (owner form theke); login kora thakle ownerId auto-attach hoy
+router.post('/', optionalAuth, async (req, res) => {
   try {
-    const newProperty = new Property(req.body);
+    const propertyData = { ...req.body };
+    if (req.user) propertyData.ownerId = req.user.id;
+    const newProperty = new Property(propertyData);
     const saved = await newProperty.save();
     res.status(201).json(saved);
   } catch (err) {

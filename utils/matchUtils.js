@@ -49,13 +49,24 @@ function capacityFor(property) {
   return parseInt(d.bedrooms || d.seats || d.cabins || d.rooms || 1) || 1;
 }
 
+// Object-e case-insensitive kore key khuje ber kora (user je bhabei likhuk na keno, match korbe)
+function findAreaKey(areaMap, name) {
+  const target = (name || '').trim().toLowerCase();
+  return Object.keys(areaMap).find((k) => k.toLowerCase() === target);
+}
+
 // Ekta property-ke tenant-er requirement diye score deoya (0-100)
 // weights: location .30, budget .25, type .15, rooms .10, facility .10, distance .10
 function scoreProperty(property, req) {
+  const propLocLower = (property.loc || '').trim().toLowerCase();
+  const reqLocLower = (req.location || '').trim().toLowerCase();
+  const nearbyKey = findAreaKey(NEARBY, req.location);
+  const nearbyList = nearbyKey ? NEARBY[nearbyKey].map((x) => x.toLowerCase()) : [];
+
   const locScore =
-    property.loc === req.location
+    propLocLower === reqLocLower
       ? 100
-      : (NEARBY[req.location] || []).includes(property.loc)
+      : nearbyList.includes(propLocLower)
       ? 55
       : 20;
 
@@ -76,7 +87,10 @@ function scoreProperty(property, req) {
     ? (wanted.filter((f) => property.facilities.includes(f)).length / wanted.length) * 100
     : 100;
 
-  const center = req.center || AREA_COORDS[req.location] || AREA_COORDS.Mirpur;
+  // tenant GPS dile shei-tai use hobe; na dile jana area hole shei area-r center;
+  // notun/onno kono area likhle DIU-central (Dattapara) fallback hishebe use hobe
+  const knownKey = findAreaKey(AREA_COORDS, req.location);
+  const center = req.center || (knownKey ? AREA_COORDS[knownKey] : AREA_COORDS.Dattapara);
   const dist = +haversineKm(property.lat, property.lng, center.lat, center.lng).toFixed(1);
   const distScore =
     dist <= req.radius ? Math.max(0, 100 - dist * 9) : Math.max(0, 40 - (dist - req.radius) * 10);

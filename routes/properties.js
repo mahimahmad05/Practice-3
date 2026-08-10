@@ -67,11 +67,43 @@ router.patch('/:id/verify', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// DELETE /api/properties/:id  → admin-i shudhu ekta listing delete korte parbe
-router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
+// PATCH /api/properties/:id/edit  → owner nijer listing edit korte parbe (naam, rent, facilities, ityadi)
+router.patch('/:id/edit', requireAuth, async (req, res) => {
   try {
-    const deleted = await Property.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'Property pawa jay nai' });
+    const property = await Property.findById(req.params.id);
+    if (!property) return res.status(404).json({ error: 'Property pawa jay nai' });
+    const isOwner = property.ownerId && property.ownerId.toString() === req.user.id;
+    if (!isOwner) return res.status(403).json({ error: 'Shudhu tumi nijer listing-i edit korte parbe' });
+
+    const { name, rent, facilities, details, photo, video, whatsapp, nidNumber, nidPhoto } = req.body;
+    if (name !== undefined) property.name = name;
+    if (rent !== undefined) property.rent = rent;
+    if (facilities !== undefined) property.facilities = facilities;
+    if (details !== undefined) property.details = details;
+    if (photo !== undefined) property.photo = photo;
+    if (video !== undefined) property.video = video;
+    if (whatsapp !== undefined) property.whatsapp = whatsapp;
+    if (nidNumber !== undefined) property.nidNumber = nidNumber;
+    if (nidPhoto !== undefined) property.nidPhoto = nidPhoto;
+    property.verified = false; // content change hoyeche, admin-ke abar review korte hobe
+
+    await property.save();
+    res.json(property);
+  } catch (err) {
+    res.status(500).json({ error: 'Edit korte problem hoyeche: ' + err.message });
+  }
+});
+
+// DELETE /api/properties/:id  → admin ba listing-er real owner delete korte parbe
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
+    if (!property) return res.status(404).json({ error: 'Property pawa jay nai' });
+    const isOwner = property.ownerId && property.ownerId.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) return res.status(403).json({ error: 'Ei listing muche felar permission tomar nai' });
+
+    await Property.findByIdAndDelete(req.params.id);
     res.json({ message: 'Delete kora hoyeche' });
   } catch (err) {
     res.status(500).json({ error: 'Delete korte problem hoyeche: ' + err.message });
